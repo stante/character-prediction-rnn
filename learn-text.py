@@ -20,9 +20,9 @@ def main(epochs, text_file, write_model):
 def read_text(file):
     with open(file) as f:
         s = f.read().lower()
-        s = s.replace('.', ' <fullstop> ')
+        s = s.replace('.', ' <stop> ')
         s = s.replace(',', ' <comma> ')
-        s = s.replace('?', ' <question> ')
+        s = s.replace('?', ' <question-mark> ')
         s = s.replace('!', ' <exclamation-mark>')
         s = s.replace(';', ' <semicolon> ')
         s = s.replace(':', ' <colon> ')
