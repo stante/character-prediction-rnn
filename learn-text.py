@@ -8,11 +8,12 @@ import re
 @click.argument('write-model')
 def main(epochs, text_file, write_model):
     corpus = read_text(text_file)
-    dictionary = set(corpus)
-    print(list(dictionary)[:1000])
+    vocabulary = set(corpus)
 
     print("Text file #words: {}".format(len(corpus)))
-    print("Dictionary size: {}".format(len(dictionary)))
+    print("Dictionary size: {}".format(len(vocabulary)))
+
+    int2word, word2int = create_lookup(vocabulary)
 
 
 def read_text(file):
@@ -29,6 +30,12 @@ def read_text(file):
 
         return s.split()
 
+
+def create_lookup(vocabulary):
+    int2word = dict(enumerate(vocabulary))
+    word2int = {v: k for k, v in int2word.items()}
+
+    return int2word, word2int
 
 if __name__ == '__main__':
     main()
