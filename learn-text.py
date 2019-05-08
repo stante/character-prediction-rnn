@@ -16,6 +16,23 @@ def main(epochs, text_file, write_model):
 
     int2word, word2int = create_lookup(vocabulary)
 
+    for x, y in generate_batches(corpus, 8, 20):
+        print(x)
+        print(y)
+        break
+
+
+def generate_batches(text, batch_size, seq_length):
+    original = text
+    prediction = np.roll(text, 1)
+    nbatches = len(text) // (batch_size * seq_length)
+
+    for i in range(0, nbatches, seq_length*batch_size):
+        x = original[i:seq_length * batch_size]
+        y = prediction[i:seq_length * batch_size]
+
+        yield x.reshape(batch_size, seq_length), y.reshape(batch_size, seq_length)
+
 
 def read_text(file):
     with open(file) as f:
