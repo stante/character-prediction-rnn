@@ -1,3 +1,4 @@
+import numpy as np
 import click
 import re
 
@@ -28,7 +29,7 @@ def read_text(file):
         s = s.replace('„', ' <quote-start> ')
         s = re.sub(r'\[.+\]', '', s)
 
-        return s.split()
+        return np.array(s.split())
 
 
 def create_lookup(vocabulary):
