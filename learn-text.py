@@ -38,5 +38,6 @@ def create_lookup(vocabulary):
 
     return int2word, word2int
 
+
 if __name__ == '__main__':
     main()
