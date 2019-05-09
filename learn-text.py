@@ -23,15 +23,17 @@ def main(epochs, text_file, write_model):
     model = RnnModel(len(vocabulary), 30)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001)
+
+    h = model.init_hidden()
     for x, y in generate_batches(encoded_text, 8, 20):
         optimizer.zero_grad()
         x = one_hot_encoder(x, len(vocabulary))
         x, y = torch.from_numpy(x), torch.from_numpy(y)
-        output = model.forward(x)
-        loss = criterion(output, y)
+        output = model.forward(x, h)
+        loss = criterion(output, y.view(8 * 20))
         loss.backward()
         optimizer.step()
-        break
+        print(loss.item())
 
 
 def generate_batches(text, batch_size, seq_length):
@@ -39,9 +41,10 @@ def generate_batches(text, batch_size, seq_length):
     prediction = np.roll(text, 1)
     nbatches = len(text) // (batch_size * seq_length)
 
+    print("nbatches:", nbatches)
     for i in range(0, nbatches, seq_length*batch_size):
-        x = original[i:seq_length * batch_size]
-        y = prediction[i:seq_length * batch_size]
+        x = original[i:i + seq_length * batch_size]
+        y = prediction[i:i + seq_length * batch_size]
 
         yield x.reshape(batch_size, seq_length), y.reshape(batch_size, seq_length)
 
