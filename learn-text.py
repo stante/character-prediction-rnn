@@ -4,10 +4,11 @@ import numpy as np
 import click
 import re
 from model import RnnModel
+from tqdm import tqdm
 
 
 @click.command()
-@click.option('--epochs')
+@click.option('--epochs', default=100)
 @click.argument('text-file')
 @click.argument('write-model')
 def main(epochs, text_file, write_model):
@@ -25,15 +26,18 @@ def main(epochs, text_file, write_model):
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001)
 
     h = model.init_hidden()
-    for x, y in generate_batches(encoded_text, 8, 20):
-        optimizer.zero_grad()
-        x = one_hot_encoder(x, len(vocabulary))
-        x, y = torch.from_numpy(x), torch.from_numpy(y)
-        output = model.forward(x, h)
-        loss = criterion(output, y.view(8 * 20))
-        loss.backward()
-        optimizer.step()
-        print(loss.item())
+    pbar = tqdm(range(epochs))
+    for epoch in pbar:
+        for x, y in generate_batches(encoded_text, 8, 20):
+            optimizer.zero_grad()
+            x = one_hot_encoder(x, len(vocabulary))
+            x, y = torch.from_numpy(x), torch.from_numpy(y)
+            output = model.forward(x, h)
+            loss = criterion(output, y.view(8 * 20))
+            loss.backward()
+            optimizer.step()
+
+        pbar.set_description("Loss: {:0.4f}".format(loss.item()))
 
 
 def generate_batches(text, batch_size, seq_length):
@@ -41,7 +45,6 @@ def generate_batches(text, batch_size, seq_length):
     prediction = np.roll(text, 1)
     nbatches = len(text) // (batch_size * seq_length)
 
-    print("nbatches:", nbatches)
     for i in range(0, nbatches, seq_length*batch_size):
         x = original[i:i + seq_length * batch_size]
         y = prediction[i:i + seq_length * batch_size]
