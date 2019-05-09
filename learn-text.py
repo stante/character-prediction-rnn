@@ -32,7 +32,7 @@ def main(epochs, text_file, write_model):
             optimizer.zero_grad()
             x = one_hot_encoder(x, len(vocabulary))
             x, y = torch.from_numpy(x), torch.from_numpy(y)
-            output = model.forward(x, h)
+            output, h = model.forward(x, h)
             loss = criterion(output, y.view(8 * 20))
             loss.backward()
             optimizer.step()
