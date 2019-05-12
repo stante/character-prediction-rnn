@@ -9,8 +9,11 @@ import torch.nn.functional as F
 @click.argument('read-model')
 def main(n, read_model):
     model = RnnModel(57, 30)
-    model.load_state_dict(torch.load(read_model))
-    initial = "Lorem ipsum"
+    state = torch.load(read_model)
+    model.load_state_dict(state['state_dict'])
+    word2int = state['word2int']
+    int2word = state['int2word']
+    initial = [word2int[c] for c in "lorem ipsum"]
     h = torch.zeros(1, 1, 30)
     for i in range(n):
         for c in initial:
