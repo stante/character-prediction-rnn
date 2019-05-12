@@ -25,16 +25,16 @@ $ conda env update -f environment.yml
 There are two command line application. One is for learning from a text corpus and saving the model  to a file 
 (`learn-text`) and the other one is for reading the learned model and creating text predictions (`predict-text`).
 ```sh
-Usage: learn-text.py [OPTIONS] TEXT_FILE WRITE_MODEL                                                           
-                                                                                                               
-Options:                                                                                                       
-  --epochs INTEGER                                                                                             
-  --help            Show this message and exit.  
+Usage: learn-text.py [OPTIONS] TEXT_FILE WRITE_MODEL
+
+Options:
+  --epochs INTEGER
+  --help            Show this message and exit.
 ```
 
 ```sh
-Usage: predict-text.py [OPTIONS] READ_MODEL                                                                                                                                                                                      
-                                                                                                                                                                                                                                 
+Usage: predict-text.py [OPTIONS] READ_MODEL
+
 Options:
   --n INTEGER
   --help       Show this message and exit.
