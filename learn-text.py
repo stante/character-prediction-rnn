@@ -43,7 +43,13 @@ def main(epochs, text_file, write_model):
 
         pbar.set_description("Loss: {:0.4f}".format(loss.item()))
 
-    torch.save(model.state_dict(), write_model)
+    state = {
+        'state_dict': model.state_dict(),
+        'word2int': word2int,
+        'int2word': int2word
+    }
+
+    torch.save(state, write_model)
 
 
 def generate_batches(text, batch_size, seq_length):
