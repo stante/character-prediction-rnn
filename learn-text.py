@@ -21,9 +21,9 @@ def main(epochs, text_file, write_model):
     int2word, word2int = create_lookup(vocabulary)
     encoded_text = np.array([word2int[t] for t in text])
 
-    model = RnnModel(len(vocabulary), 30)
+    model = RnnModel(len(vocabulary), 512)
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.001)
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     h = model.init_hidden()
     pbar = tqdm(range(epochs))
@@ -41,7 +41,7 @@ def main(epochs, text_file, write_model):
             loss.backward()
             optimizer.step()
 
-        pbar.set_description("Loss: {:0.4f}".format(loss.item()))
+        pbar.set_description("Loss: {:0.5f}".format(loss.item()))
 
     state = {
         'state_dict': model.state_dict(),
@@ -75,13 +75,13 @@ def one_hot_encoder(batch, length):
 def read_text(file):
     with open(file) as f:
         s = f.read().lower()
-        s = s.replace('.', ' <stop> ')
-        s = s.replace(',', ' <comma> ')
-        s = s.replace('?', ' <question-mark> ')
-        s = s.replace('!', ' <exclamation-mark>')
-        s = s.replace(';', ' <semicolon> ')
-        s = s.replace(':', ' <colon> ')
-        s = s.replace('„', ' <quote-start> ')
+        s = s.replace('.', ' ')
+        s = s.replace(',', ' ')
+        s = s.replace('?', ' ')
+        s = s.replace('!', '')
+        s = s.replace(';', ' ')
+        s = s.replace(':', ' ')
+        s = s.replace('„', ' ')
         s = re.sub(r'\[.+\]', '', s)
 
         return np.array(list(s))
