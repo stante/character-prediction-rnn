@@ -54,7 +54,7 @@ def main(epochs, text_file, write_model):
 
 def generate_batches(text, batch_size, seq_length):
     original = text
-    prediction = np.roll(text, 1)
+    prediction = np.roll(text, -1)
     nbatches = len(text) // (batch_size * seq_length)
 
     for i in range(0, nbatches, seq_length*batch_size):
