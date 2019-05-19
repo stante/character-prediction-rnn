@@ -17,7 +17,7 @@ def main(n, read_model):
     model = RnnModel(input_size, hidden_size, num_layers)
     model.load_state_dict(state['state_dict'])
 
-    initial = [word2int[c] for c in "the"]
+    initial = [word2int[c] for c in "jemand musste"]
     h = model.init_hidden(1)
 
     for c in initial:
