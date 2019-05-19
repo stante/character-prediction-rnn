@@ -34,6 +34,12 @@ def main(epochs, batch_size, seq_length, hidden_size, num_layers, text_file, wri
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
+    i = 0
+    for x, y in generate_batches(encoded_text, batch_size, seq_length):
+        i += 1
+
+    print("Iterations: {} Total: {}".format(i, i * batch_size * seq_length))
+
     pbar = tqdm(range(epochs))
     for epoch in pbar:
         h = tuple([state.to(device) for state in model.init_hidden(batch_size)])
@@ -68,7 +74,7 @@ def generate_batches(text, batch_size, seq_length):
     prediction = np.roll(text, -1)
     nbatches = len(text) // (batch_size * seq_length)
 
-    for i in range(0, nbatches, seq_length*batch_size):
+    for i in range(0, seq_length*nbatches*batch_size, seq_length * batch_size):
         x = original[i:i + seq_length * batch_size]
         y = prediction[i:i + seq_length * batch_size]
 
@@ -86,13 +92,6 @@ def one_hot_encoder(batch, length):
 def read_text(file):
     with open(file) as f:
         s = f.read().lower()
-        s = s.replace('.', ' ')
-        s = s.replace(',', ' ')
-        s = s.replace('?', ' ')
-        s = s.replace('!', '')
-        s = s.replace(';', ' ')
-        s = s.replace(':', ' ')
-        s = s.replace('„', ' ')
         s = re.sub(r'\[.+\]', '', s)
 
         return np.array(list(s))
