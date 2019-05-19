@@ -18,7 +18,7 @@ def main(n, read_model):
     model.load_state_dict(state['state_dict'])
 
     initial = [word2int[c] for c in "the"]
-    h = (torch.zeros(2, 1, hidden_size), torch.zeros(2, 1, hidden_size))
+    h = model.init_hidden(1)
 
     for c in initial:
         print(int2word[c], end='')
