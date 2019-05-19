@@ -9,9 +9,10 @@ from tqdm import tqdm
 
 @click.command()
 @click.option('--epochs', default=100)
+@click.option('--batch-size', default=128)
 @click.argument('text-file')
 @click.argument('write-model')
-def main(epochs, text_file, write_model):
+def main(epochs, batch_size, text_file, write_model):
     text = read_text(text_file)
     vocabulary = set(text)
 
@@ -26,14 +27,14 @@ def main(epochs, text_file, write_model):
     int2word, word2int = create_lookup(vocabulary)
     encoded_text = np.array([word2int[t] for t in text])
 
-    model = RnnModel(len(vocabulary), 512).to(device)
+    model = RnnModel(len(vocabulary), 512, num_layers=2).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
     pbar = tqdm(range(epochs))
     for epoch in pbar:
-        h = tuple([state.to(device) for state in model.init_hidden()])
-        for x, y in generate_batches(encoded_text, 128, 100):
+        h = tuple([state.to(device) for state in model.init_hidden(batch_size)])
+        for x, y in generate_batches(encoded_text, batch_size, 100):
             optimizer.zero_grad()
             x = one_hot_encoder(x, len(vocabulary))
             x, y = torch.from_numpy(x).to(device), torch.from_numpy(y).to(device)
@@ -42,7 +43,7 @@ def main(epochs, text_file, write_model):
 
             output, h = model.forward(x, h)
 
-            loss = criterion(output, y.view(128 * 100))
+            loss = criterion(output, y.view(batch_size * 100))
             loss.backward()
             optimizer.step()
 
