@@ -2,6 +2,7 @@ import click
 from model import RnnModel
 import torch
 import torch.nn.functional as F
+import numpy as np
 
 
 @click.command()
@@ -17,23 +18,28 @@ def main(n, read_model):
     model = RnnModel(input_size, hidden_size, num_layers)
     model.load_state_dict(state['state_dict'])
 
-    initial = [word2int[c] for c in "jemand musste"]
+    initial = [word2int[c] for c in "anna"]
     h = model.init_hidden(1)
-
+    model.eval()
     for c in initial:
         print(int2word[c], end='')
-        x = torch.zeros(1, 1, input_size)
-        x[0, 0, c] = 1
-        output, h = model.forward(x, h)
+        char, h = predict(model, c, h, 3)
 
     for i in range(n):
-        k = torch.topk(F.softmax(output, dim=1), k=3)
-        i = torch.multinomial(k[0], 1).item()
-        c = k[1][0, i].item()
-        print(int2word[c], end='')
-        x = torch.zeros(1, 1, input_size)
-        x[0, 0, c] = 1
-        output, h = model.forward(x, h)
+        char, h = predict(model, char, h, 3)
+        print(int2word[char], end='')
+
+
+def predict(net, char, h=None, top_k=1):
+    input_size = net.input_size
+    input = torch.zeros(1, 1, input_size)
+    input[0, 0, char] = 1
+    prediction, h = net.forward(input, h)
+    prediction = F.softmax(prediction, dim=1).detach()
+    p, top_char = prediction.topk(top_k)
+    p, top_char = p.numpy().squeeze(), top_char.numpy().squeeze()
+    char = np.random.choice(top_char, p=p/p.sum())
+    return char, h
 
 
 if __name__ == '__main__':
