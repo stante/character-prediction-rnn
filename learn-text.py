@@ -55,7 +55,9 @@ def main(epochs, batch_size, seq_length, hidden_size, num_layers, text_file, wri
     state = {
         'state_dict': model.state_dict(),
         'word2int': word2int,
-        'int2word': int2word
+        'int2word': int2word,
+        'hidden_size': hidden_size,
+        'num_layers': num_layers
     }
 
     torch.save(state, write_model)
