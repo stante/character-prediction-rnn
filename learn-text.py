@@ -10,9 +10,11 @@ from tqdm import tqdm
 @click.command()
 @click.option('--epochs', default=100)
 @click.option('--batch-size', default=128)
+@click.option('--hidden-size', default=512)
+@click.option('--num-layers', default=2)
 @click.argument('text-file')
 @click.argument('write-model')
-def main(epochs, batch_size, text_file, write_model):
+def main(epochs, batch_size, hidden_size, num_layers, text_file, write_model):
     text = read_text(text_file)
     vocabulary = set(text)
 
@@ -27,7 +29,7 @@ def main(epochs, batch_size, text_file, write_model):
     int2word, word2int = create_lookup(vocabulary)
     encoded_text = np.array([word2int[t] for t in text])
 
-    model = RnnModel(len(vocabulary), 512, num_layers=2).to(device)
+    model = RnnModel(len(vocabulary), hidden_size, num_layers=num_layers).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
