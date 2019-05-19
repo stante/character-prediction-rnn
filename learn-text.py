@@ -10,11 +10,12 @@ from tqdm import tqdm
 @click.command()
 @click.option('--epochs', default=100)
 @click.option('--batch-size', default=128)
+@click.option('--seq-length', default=100)
 @click.option('--hidden-size', default=512)
 @click.option('--num-layers', default=2)
 @click.argument('text-file')
 @click.argument('write-model')
-def main(epochs, batch_size, hidden_size, num_layers, text_file, write_model):
+def main(epochs, batch_size, seq_length, hidden_size, num_layers, text_file, write_model):
     text = read_text(text_file)
     vocabulary = set(text)
 
@@ -36,7 +37,7 @@ def main(epochs, batch_size, hidden_size, num_layers, text_file, write_model):
     pbar = tqdm(range(epochs))
     for epoch in pbar:
         h = tuple([state.to(device) for state in model.init_hidden(batch_size)])
-        for x, y in generate_batches(encoded_text, batch_size, 100):
+        for x, y in generate_batches(encoded_text, batch_size, seq_length):
             optimizer.zero_grad()
             x = one_hot_encoder(x, len(vocabulary))
             x, y = torch.from_numpy(x).to(device), torch.from_numpy(y).to(device)
@@ -45,7 +46,7 @@ def main(epochs, batch_size, hidden_size, num_layers, text_file, write_model):
 
             output, h = model.forward(x, h)
 
-            loss = criterion(output, y.view(batch_size * 100))
+            loss = criterion(output, y.view(batch_size * seq_length))
             loss.backward()
             optimizer.step()
 
