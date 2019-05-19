@@ -18,30 +18,35 @@ def main(epochs, text_file, write_model):
     print("Text file #words: {}".format(len(text)))
     print("Dictionary size: {}".format(len(vocabulary)))
 
+    if torch.cuda.is_available:
+        device = torch.device('cuda')
+    else:
+        device = torch.device('cpu')
+
     int2word, word2int = create_lookup(vocabulary)
     encoded_text = np.array([word2int[t] for t in text])
 
-    model = RnnModel(len(vocabulary), 512)
+    model = RnnModel(len(vocabulary), 512).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
-    h = model.init_hidden()
     pbar = tqdm(range(epochs))
     for epoch in pbar:
-        for x, y in generate_batches(encoded_text, 8, 20):
+        h = tuple([state.to(device) for state in model.init_hidden()])
+        for x, y in generate_batches(encoded_text, 128, 100):
             optimizer.zero_grad()
             x = one_hot_encoder(x, len(vocabulary))
-            x, y = torch.from_numpy(x), torch.from_numpy(y)
+            x, y = torch.from_numpy(x).to(device), torch.from_numpy(y).to(device)
 
-            h = h.clone().detach()
+            h = tuple([state.clone().detach() for state in h])
 
             output, h = model.forward(x, h)
 
-            loss = criterion(output, y.view(8 * 20))
+            loss = criterion(output, y.view(128 * 100))
             loss.backward()
             optimizer.step()
 
-        pbar.set_description("Loss: {:0.5f}".format(loss.item()))
+        pbar.set_description("Loss: {:0.6f}".format(loss.item()))
 
     state = {
         'state_dict': model.state_dict(),
