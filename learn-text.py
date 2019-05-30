@@ -68,9 +68,15 @@ def generate_batches(text, batch_size, seq_length):
     prediction = np.roll(text, -1)
     nbatches = len(text) // (batch_size * seq_length)
 
-    for i in range(0, seq_length*nbatches*batch_size, seq_length * batch_size):
-        x = original[i:i + seq_length * batch_size]
-        y = prediction[i:i + seq_length * batch_size]
+    original = original[:nbatches * batch_size * seq_length]
+    prediction = prediction[:nbatches * batch_size * seq_length]
+
+    original = original.reshape(batch_size, -1, seq_length)
+    prediction = prediction.reshape(batch_size, -1, seq_length)
+
+    for i in range(original.shape[1]):
+        x = original[:, i, :]
+        y = prediction[:, i, :]
 
         yield x.reshape(batch_size, seq_length), y.reshape(batch_size, seq_length)
 
